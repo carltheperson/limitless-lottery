@@ -1,4 +1,4 @@
-package ticketchecker
+package tickets
 
 type ticket struct {
 	id           string

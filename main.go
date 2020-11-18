@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/carlriis/Limitless-Lottery/api"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	api.Serve(":8080")
 }

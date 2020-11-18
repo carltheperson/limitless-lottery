@@ -1,10 +1,16 @@
-package ticketchecker
+package tickets
 
 import (
 	"errors"
 	"math/rand"
 	"time"
 )
+
+//func IDWithNoMatchError() error {
+//	return errors.New("ID did not match any tickets")
+//}
+
+var IDWithNoMatchError = errors.New("ID did not match any tickets")
 
 func checkWin(odds int) bool {
 	rand.Seed(time.Now().UnixNano())
@@ -16,15 +22,16 @@ func checkWin(odds int) bool {
 
 // CheckedTicket represents a ticket after it has been checked
 type CheckedTicket struct {
-	amountWon, amountDeducted int
+	AmountWon      int `json:"amountWon"`
+	AmountDeducted int `json:"amountDeducted"`
 }
 
 // Check takes in a ticket ID and returns a CheckedTicket
 func Check(id string) (CheckedTicket, error) {
 	for _, ticket := range tickets {
 		if ticket.id == id {
-			return CheckedTicket{amountWon: ticket.calculateWin(), amountDeducted: ticket.price}, nil
+			return CheckedTicket{AmountWon: ticket.calculateWin(), AmountDeducted: ticket.price}, nil
 		}
 	}
-	return CheckedTicket{}, errors.New("ID did not match any tickets")
+	return CheckedTicket{}, IDWithNoMatchError
 }
