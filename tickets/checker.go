@@ -6,10 +6,7 @@ import (
 	"time"
 )
 
-//func IDWithNoMatchError() error {
-//	return errors.New("ID did not match any tickets")
-//}
-
+// IDWithNoMatchError is thrown when the tickitid does not match any tickets
 var IDWithNoMatchError = errors.New("ID did not match any tickets")
 
 func checkWin(odds int) bool {
