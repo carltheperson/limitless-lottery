@@ -1,54 +1,30 @@
 package tickets
 
-type ticket struct {
-	id           string
-	price        int
-	calculateWin func() int
+// Ticket represents a lottery ticket
+type Ticket struct {
+	id    string
+	price int
+	odds  map[int]int
 }
 
-var scratchy = ticket{id: "scr", price: 10, calculateWin: func() int {
-	if checkWin(10) {
-		return 10
-	}
-	if checkWin(15) {
-		return 20
-	}
-	if checkWin(25) {
-		return 100
-	}
-	if checkWin(35) {
-		return 200
-	}
-	if checkWin(55) {
-		return 300
-	}
-	if checkWin(150) {
-		return 1000
-	}
-	return 0
+var scratchy = Ticket{id: "scr", price: 10, odds: map[int]int{
+	10:  10,
+	15:  20,
+	25:  100,
+	35:  200,
+	55:  300,
+	150: 1000,
 }}
 
-var goldenTicket = ticket{id: "gol", price: 20, calculateWin: func() int {
-	if checkWin(100) {
-		return 500
-	}
-	if checkWin(150) {
-		return 1000
-	}
-	if checkWin(200) {
-		return 1500
-	}
-	if checkWin(250) {
-		return 2000
-	}
-	return 0
+var goldenTicket = Ticket{id: "gol", price: 20, odds: map[int]int{
+	100: 500,
+	150: 1000,
+	200: 1500,
+	250: 2000,
 }}
 
-var insaneMoneyRain = ticket{id: "ins", price: 30, calculateWin: func() int {
-	if checkWin(100000) {
-		return 10000000
-	}
-	return 0
+var insaneMoneyRain = Ticket{id: "ins", price: 30, odds: map[int]int{
+	100000: 10000000,
 }}
 
-var tickets = []ticket{scratchy, goldenTicket, insaneMoneyRain}
+var tickets = []Ticket{scratchy, goldenTicket, insaneMoneyRain}

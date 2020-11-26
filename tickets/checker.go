@@ -2,33 +2,67 @@ package tickets
 
 import (
 	"errors"
-	"math/rand"
 	"time"
+
+	"golang.org/x/exp/rand"
+	"gonum.org/v1/gonum/stat/distuv"
 )
 
-// IDWithNoMatchError is thrown when the tickitid does not match any tickets
-var IDWithNoMatchError = errors.New("ID did not match any tickets")
+// ErrIDWithNoMatch is thrown when the tickitid does not match any tickets
+var ErrIDWithNoMatch = errors.New("ID did not match any tickets")
 
-func checkWin(odds int) bool {
-	rand.Seed(time.Now().UnixNano())
-	if rand.Intn(odds) == 1 {
-		return true
+func checkTicket(ticket Ticket, amount int) CheckedTicket {
+	checkedTicket := CheckedTicket{AmountWonTotal: 0, AmountDeducted: 0, Wins: []OddsWin{}}
+
+	checkedTicket.AmountDeducted = ticket.price * amount
+
+	for outOf, prize := range ticket.odds {
+
+		// Using binomial distribution to determine how many of the tickets won using the 'outOf' odds.
+		bio := distuv.Binomial{
+			N:   float64(amount),
+			P:   1.0 / float64(outOf),
+			Src: rand.NewSource(uint64(time.Now().UnixNano())),
+		}
+
+		howManyWon := int(bio.Rand())
+
+		if howManyWon != 0 {
+			checkedTicket.AmountWonTotal += howManyWon * prize
+
+			checkedTicket.Wins = append(checkedTicket.Wins, OddsWin{
+				OutOfOdds:     outOf,
+				Prize:         prize,
+				AmountThatWon: howManyWon,
+				TotalWinning:  howManyWon * prize,
+			})
+		}
 	}
-	return false
+
+	return checkedTicket
+}
+
+// OddsWin represents the winnings of a certain set of odds. For example 1/10
+type OddsWin struct {
+	OutOfOdds     int // If the odds are 1/10. Then this number would be 10.
+	Prize         int
+	AmountThatWon int
+	TotalWinning  int
 }
 
 // CheckedTicket represents a ticket after it has been checked
 type CheckedTicket struct {
-	AmountWon      int `json:"amountWon"`
-	AmountDeducted int `json:"amountDeducted"`
+	AmountWonTotal int
+	AmountDeducted int
+	Wins           []OddsWin
 }
 
 // Check takes in a ticket ID and returns a CheckedTicket
-func Check(id string) (CheckedTicket, error) {
+func Check(id string, amount int) (CheckedTicket, error) {
 	for _, ticket := range tickets {
 		if ticket.id == id {
-			return CheckedTicket{AmountWon: ticket.calculateWin(), AmountDeducted: ticket.price}, nil
+			return checkTicket(ticket, amount), nil
 		}
 	}
-	return CheckedTicket{}, IDWithNoMatchError
+	return CheckedTicket{}, ErrIDWithNoMatch
 }
