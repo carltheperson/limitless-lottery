@@ -6,25 +6,39 @@ import (
 	"strconv"
 
 	"github.com/carlriis/Limitless-Lottery/tickets"
+	"github.com/go-playground/validator/v10"
 )
 
-func checkTicket(w http.ResponseWriter, r *http.Request) { // TODO create better validation
-	id := r.URL.Query().Get("ticketid")
-	amount := r.URL.Query().Get("amount")
-	if id == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("'ticketid' is a required field"))
-		return
+func checkTicket(w http.ResponseWriter, r *http.Request) {
+	v := validator.New()
+	input := struct {
+		ID     string `validate:"required"`
+		Amount string `validate:"required,numeric"`
+		amount int
+	}{
+		ID:     r.URL.Query().Get("ticketid"),
+		Amount: r.URL.Query().Get("amount"),
 	}
-	if _, err := strconv.Atoi(amount); err != nil || amount == "" {
+
+	err := v.Struct(input)
+	if err != nil {
+		for _, e := range err.(validator.ValidationErrors) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(e.Error()))
+			return
+		}
+	}
+
+	num, _ := strconv.Atoi(input.Amount)
+	input.amount = num
+
+	if input.amount < 0 || input.amount > 100000000 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("'amount' is not defined or a number"))
+		w.Write([]byte("'amount' outside range"))
 		return
 	}
 
-	ticketamount, _ := strconv.Atoi(amount)
-
-	ct, err := tickets.Check(id, ticketamount)
+	ct, err := tickets.Check(input.ID, input.amount)
 	if err == tickets.ErrIDWithNoMatch {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("'ticketid' did not match any ticket"))
