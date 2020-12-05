@@ -13,7 +13,7 @@ func checkTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ct, err := tickets.Check(input.ID, input.amount)
+	ct, err := tickets.CheckAmount(input.ID, input.amount)
 	if err == tickets.ErrIDWithNoMatch {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("'ticketid' did not match any ticket"))
