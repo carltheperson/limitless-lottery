@@ -12,8 +12,8 @@ import (
 // ErrIDWithNoMatch is thrown when the tickitid does not match any tickets
 var ErrIDWithNoMatch = errors.New("ID did not match any tickets")
 
-func checkTicketAmount(ticket Ticket, amount int) CheckedTicket {
-	checkedTicket := CheckedTicket{AmountWonTotal: 0, AmountDeducted: 0, Wins: []OddsWin{}}
+func checkTicketAmount(ticket Ticket, amount int) CheckedTicketAmount {
+	checkedTicket := CheckedTicketAmount{AmountWonTotal: 0, AmountDeducted: 0, Wins: []OddsWin{}}
 
 	checkedTicket.AmountDeducted = ticket.price * amount
 
@@ -45,12 +45,12 @@ func checkTicketAmount(ticket Ticket, amount int) CheckedTicket {
 
 func calcAmountForOneWin(outOf int) int {
 	randomNumber := rand.New(rand.NewSource(uint64(time.Now().UnixNano()))).Float64()
-	amount := math.Log(-1*(randomNumber+1)) / math.Log(1.0-1.0/float64(outOf))
+	amount := math.Ceil(math.Log(-1.0*randomNumber+1.0) / math.Log(1.0-1.0/float64(outOf)))
 	return int(amount)
 }
 
-func checkTicketUntilWin(ticket Ticket) CheckedTicket {
-	minAmount := ^int(0)
+func checkTicketUntilWin(ticket Ticket) CheckedTicketUntilWin {
+	minAmount := math.MaxInt32
 	prizeForMinAmount := 0
 	outOfForMinAmount := 0
 
@@ -63,15 +63,13 @@ func checkTicketUntilWin(ticket Ticket) CheckedTicket {
 		}
 	}
 
-	return CheckedTicket{
-		AmountWonTotal: prizeForMinAmount * minAmount,
-		AmountDeducted: ticket.price * minAmount,
-		Wins: []OddsWin{
-			{
-				OutOfOdds:    outOfForMinAmount,
-				Prize:        prizeForMinAmount,
-				AmountBought: minAmount,
-			}},
+	return CheckedTicketUntilWin{
+		Prize:               prizeForMinAmount,
+		Price:               ticket.price,
+		AmountBought:        minAmount,
+		OutOfOdds:           outOfForMinAmount,
+		AmountDeductedTotal: minAmount * ticket.price,
+		Profit:              prizeForMinAmount - minAmount*ticket.price,
 	}
 }
 
@@ -81,15 +79,23 @@ type OddsWin struct {
 	Prize         int
 	AmountThatWon int
 	TotalWinning  int
-	AmountBought  int
 }
 
-// CheckedTicket represents a ticket after it has been checked
+// CheckedTicketAmount represents a ticket after it has been checked
 // Note that tickets can have multiple odds with different winning prizes
-type CheckedTicket struct {
+type CheckedTicketAmount struct {
 	AmountWonTotal int
 	AmountDeducted int
 	Wins           []OddsWin
+}
+
+type CheckedTicketUntilWin struct {
+	Prize               int
+	Price               int
+	AmountBought        int
+	OutOfOdds           int
+	AmountDeductedTotal int
+	Profit              int
 }
 
 func findCheckedTicketFromID(id string) (Ticket, error) {
@@ -102,19 +108,19 @@ func findCheckedTicketFromID(id string) (Ticket, error) {
 }
 
 // Check checks a ticket a certain amount
-func CheckAmount(id string, amount int) (CheckedTicket, error) {
+func CheckAmount(id string, amount int) (CheckedTicketAmount, error) {
 	ticket, err := findCheckedTicketFromID(id)
 	if err != nil {
-		return CheckedTicket{}, err
+		return CheckedTicketAmount{}, err
 	}
 	return checkTicketAmount(ticket, amount), nil
 }
 
 // CheckUntilWin buys tickets until a success
-func CheckUntilWin(id string) (CheckedTicket, error) {
+func CheckUntilWin(id string) (CheckedTicketUntilWin, error) {
 	ticket, err := findCheckedTicketFromID(id)
 	if err != nil {
-		return CheckedTicket{}, err
+		return CheckedTicketUntilWin{}, err
 	}
 	return checkTicketUntilWin(ticket), nil
 }

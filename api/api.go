@@ -12,7 +12,8 @@ import (
 func Serve(addr string) {
 	r := mux.NewRouter().PathPrefix("/api").Subrouter()
 
-	r.HandleFunc("/checkticket", checkTicket)
+	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("GET")
+	r.HandleFunc("/checkticketuntilwin", checkTicketUntilWin).Methods("GET")
 
 	server := &http.Server{
 		Addr:         addr,
