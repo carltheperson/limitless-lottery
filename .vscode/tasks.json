@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "killport",
+      "command": "bash -c \"fuser -k 8080/tcp\" || true",
+      "type": "shell",
+      "presentation": {
+        "reveal": "silent"
+      }
+    }
+  ]
+}
