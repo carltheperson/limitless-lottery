@@ -1,5 +1,19 @@
 package tickets
 
+import "errors"
+
+// ErrIDWithNoMatch is thrown when the tickitid does not match any tickets
+var ErrIDWithNoMatch = errors.New("ID did not match any tickets")
+
+func findCheckedTicketFromID(id string) (Ticket, error) {
+	for _, ticket := range tickets {
+		if ticket.id == id {
+			return ticket, nil
+		}
+	}
+	return Ticket{}, ErrIDWithNoMatch
+}
+
 // Ticket represents a lottery ticket
 type Ticket struct {
 	id    string
