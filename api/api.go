@@ -11,6 +11,7 @@ import (
 // Serve starts API
 func Serve(addr string) {
 	r := mux.NewRouter().PathPrefix("/api").Subrouter()
+	r.Use(jsonMiddleware)
 
 	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("GET")
 	r.HandleFunc("/checkticketuntilwin", checkTicketUntilWin).Methods("GET")
@@ -28,4 +29,11 @@ func Serve(addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func jsonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }
