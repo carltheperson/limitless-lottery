@@ -4,19 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/carlriis/Limitless-Lottery/api/validation"
 	"github.com/carlriis/Limitless-Lottery/tickets"
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
-	input, ok := checkTicketAmountValidator(w, r)
+	input, ok := validation.CheckTicketAmount(w, r)
 	if ok != true {
 		return
 	}
 
-	ct, err := tickets.CheckAmount(input.ID, input.amount)
+	ct, err := tickets.CheckAmount(input.ID, input.Amount)
 	if err == tickets.ErrIDWithNoMatch {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("'ticketid' did not match any ticket"))
+		validation.WriteErrors(w, []validation.ErrorMessage{{Case: "match", Field: "ID"}})
 		return
 	}
 
@@ -25,15 +25,14 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
-	input, ok := checkTicketUntilWinValidator(w, r)
+	input, ok := validation.CheckTicketUntilWin(w, r)
 	if ok != true {
 		return
 	}
 
 	ct, err := tickets.CheckUntilWin(input.ID)
 	if err == tickets.ErrIDWithNoMatch {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("'ticketid' did not match any ticket"))
+		validation.WriteErrors(w, []validation.ErrorMessage{{Case: "match", Field: "ID"}})
 		return
 	}
 
