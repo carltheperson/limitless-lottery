@@ -3,6 +3,6 @@ services:
   db:
     image: mongo
     volumes:
-      - ./data:/data/db
+      - ./mongodata:/data/db
     ports:
       - 27017:27017
