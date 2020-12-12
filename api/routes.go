@@ -5,7 +5,13 @@ import (
 	"net/http"
 
 	"github.com/carlriis/Limitless-Lottery/api/validation"
+	"github.com/carlriis/Limitless-Lottery/db"
 	"github.com/carlriis/Limitless-Lottery/tickets"
+)
+
+var (
+	noTicketMatch    = []validation.ErrorMessage{{Case: "match", Field: "ID", Message: "There was no match for that ticket id"}}
+	userDoesNotExist = []validation.ErrorMessage{{Case: "Exist", Field: "Username", Message: "No user was found with that username"}}
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
@@ -16,12 +22,23 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 
 	ct, err := tickets.CheckAmount(input.ID, input.Amount)
 	if err == tickets.ErrIDWithNoMatch {
-		validation.WriteErrors(w, []validation.ErrorMessage{{Case: "match", Field: "ID"}})
+		validation.WriteErrors(w, noTicketMatch)
 		return
 	}
 
-	json.NewEncoder(w).Encode(ct)
-	return
+	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.AmountWonTotal-ct.AmountDeducted)
+	if err == db.ErrUserDoesNotExist {
+		validation.WriteErrors(w, userDoesNotExist)
+		return
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Ct      tickets.CheckedTicketAmount
+		Balance int
+	}{
+		Ct:      ct,
+		Balance: updatedBalance,
+	})
 }
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
@@ -32,10 +49,21 @@ func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
 
 	ct, err := tickets.CheckUntilWin(input.ID)
 	if err == tickets.ErrIDWithNoMatch {
-		validation.WriteErrors(w, []validation.ErrorMessage{{Case: "match", Field: "ID"}})
+		validation.WriteErrors(w, noTicketMatch)
 		return
 	}
 
-	json.NewEncoder(w).Encode(ct)
-	return
+	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.Profit)
+	if err == db.ErrUserDoesNotExist {
+		validation.WriteErrors(w, userDoesNotExist)
+		return
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Ct      tickets.CheckedTicketUntilWin
+		Balance int
+	}{
+		Ct:      ct,
+		Balance: updatedBalance,
+	})
 }

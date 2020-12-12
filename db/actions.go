@@ -2,6 +2,9 @@ package db
 
 import (
 	"errors"
+
+	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const initialBalance = 10000
@@ -29,7 +32,10 @@ func RemoveUser(username string) error {
 	ctx, cancel := getContext()
 	defer cancel()
 
-	result, _ := usersCollection.DeleteOne(ctx, User{Username: username})
+	result, err := usersCollection.DeleteOne(ctx, User{Username: username})
+	if err != nil {
+		log.Error(err)
+	}
 
 	if result.DeletedCount == 0 {
 		return ErrUserDoesNotExist
@@ -52,26 +58,37 @@ func GetUser(username string) (User, error) {
 	return result, nil
 }
 
-func ChangeUserBalance(username string, change int) error {
+func ChangeUserBalance(username string, change int) (int, error) {
 	user, err := GetUser(username)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	user.Balance += change
 
 	ctx, cancel := getContext()
 	defer cancel()
-	_, err = usersCollection.UpdateOne(ctx, User{Username: username}, user)
 
-	return err
+	update := bson.M{
+		"$set": user,
+	}
+
+	_, err = usersCollection.UpdateOne(ctx, User{Username: username}, update)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return user.Balance, err
 }
 
 func checkIfUsernameTaken(username string) bool {
 	ctx, cancel := getContext()
 	defer cancel()
 
-	count, _ := usersCollection.CountDocuments(ctx, User{Username: username})
+	count, err := usersCollection.CountDocuments(ctx, User{Username: username})
+	if err != nil {
+		log.Error(err)
+	}
 
 	if count == 0 {
 		return false
