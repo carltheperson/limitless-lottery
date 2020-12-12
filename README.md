@@ -2,6 +2,24 @@
 
 A simulation game where you are allowed to spend an infinite amount of money on different kinds of lottery tickets. Will you make more than you spend?
 
+# Running
+
+## Running in development
+
+This will only launch the local database. You can now run the app in your IDE and it will connect to the database.
+
+```
+docker-compose -f docker-compose.db.yaml up
+```
+
+## Running in production
+
+This will build the app to a small Alpine Docker image, and bring up a MongoDB database which communicates with the app.
+
+```
+docker-compose -f docker-compose.db.yaml -f docker-compose.yaml up
+```
+
 # Probability calculations
 
 <!-- Equations from: https://www.codecogs.com/latex/eqneditor.php -->
