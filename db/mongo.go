@@ -14,6 +14,7 @@ import (
 
 var client *mongo.Client
 var usersCollection *mongo.Collection
+var sessionIdentitiesCollection *mongo.Collection
 
 func Connect() {
 
@@ -34,6 +35,7 @@ func Connect() {
 	}
 
 	createUsersCollection()
+	createSessionIdentities()
 
 	log.Info("Connection to Mongo was successfull")
 }
@@ -51,6 +53,10 @@ func Ping(ctx context.Context) error {
 
 func createUsersCollection() {
 	usersCollection = client.Database("limitless_lottery").Collection("users")
+}
+
+func createSessionIdentities() {
+	sessionIdentitiesCollection = client.Database("limitless_lottery").Collection("session_identities")
 }
 
 func createClient() {

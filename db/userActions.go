@@ -12,20 +12,17 @@ const initialBalance = 10000
 var ErrUsernameTaken = errors.New("Username taken")
 var ErrUserDoesNotExist = errors.New("User does not exist")
 
-func NewUser(username string) error {
+func NewUser(username string, passwordHash string) error {
 	ctx, cancel := getContext()
 	defer cancel()
 
-	if checkIfUsernameTaken(username) {
-		return ErrUsernameTaken
-	}
+	_, err := usersCollection.InsertOne(ctx, User{
+		Username:     username,
+		PasswordHash: passwordHash,
+		Balance:      initialBalance,
+	})
 
-	_, err := usersCollection.InsertOne(ctx, User{Username: username, Balance: initialBalance})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func RemoveUser(username string) error {
@@ -81,7 +78,7 @@ func ChangeUserBalance(username string, change int) (int, error) {
 	return user.Balance, err
 }
 
-func checkIfUsernameTaken(username string) bool {
+func CheckIfUsernameTaken(username string) bool {
 	ctx, cancel := getContext()
 	defer cancel()
 

@@ -10,5 +10,4 @@ func TestSessionTokenGeneration(t *testing.T) {
 	if auth.GenerateSessionToken() == auth.GenerateSessionToken() {
 		t.Error("auth session tokens the same")
 	}
-	t.Error(auth.GenerateSessionToken())
 }

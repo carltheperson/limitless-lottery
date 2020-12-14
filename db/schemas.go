@@ -5,7 +5,15 @@ import (
 )
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Username string             `bson:"username,omitempty"`
-	Balance  int                `bson:"balance,omitempty"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	Username     string             `bson:"username,omitempty"`
+	PasswordHash string             `bson:"passwordHash,omitempty"`
+	Balance      int                `bson:"balance,omitempty"`
+}
+
+type SessionIdentity struct {
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	Username       string             `bson:"username,omitempty"`
+	SessionToken   string             `bson:"sessionToken,omitempty"`
+	ExpirationDate int64              `bson:"expirationDate,omitempty"`
 }

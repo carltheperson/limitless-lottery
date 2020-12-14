@@ -28,7 +28,7 @@ func TestUserActions(t *testing.T) {
 
 	testingUsername := generateTestingUsername()
 
-	err := db.NewUser(testingUsername)
+	err := db.NewUser(testingUsername, "#####")
 	if err != nil {
 		t.Errorf("Could not create test user '%s' : %s", testingUsername, err)
 	}
