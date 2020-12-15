@@ -10,25 +10,31 @@ import (
 )
 
 var (
-	noTicketMatch    = []validation.ErrorMessage{{Case: "match", Field: "ID", Message: "There was no match for that ticket id"}}
-	userDoesNotExist = []validation.ErrorMessage{{Case: "Exist", Field: "Username", Message: "No user was found with that username"}}
+	errNoTicketMatch    = validation.ErrorMessage{Case: "match", Field: "ID", Message: "There was no match for that ticket id"}
+	errUserDoesNotExist = validation.ErrorMessage{Case: "exist", Field: "Username", Message: "No user was found with that username"}
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
-	input, ok := validation.CheckTicketAmount(w, r)
+	ea := validation.NewErrorAdder()
+	input, ok := validation.CheckTicketAmount(r, &ea)
 	if ok != true {
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 
 	ct, err := tickets.CheckAmount(input.ID, input.Amount)
+
 	if err == tickets.ErrIDWithNoMatch {
-		validation.WriteErrors(w, noTicketMatch)
+		ea.Add(errNoTicketMatch)
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 
 	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.AmountWonTotal-ct.AmountDeducted)
+
 	if err == db.ErrUserDoesNotExist {
-		validation.WriteErrors(w, userDoesNotExist)
+		ea.Add(errUserDoesNotExist)
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 
@@ -42,20 +48,26 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
-	input, ok := validation.CheckTicketUntilWin(w, r)
+	ea := validation.NewErrorAdder()
+	input, ok := validation.CheckTicketUntilWin(r, &ea)
 	if ok != true {
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 
 	ct, err := tickets.CheckUntilWin(input.ID)
+
 	if err == tickets.ErrIDWithNoMatch {
-		validation.WriteErrors(w, noTicketMatch)
+		ea.Add(errNoTicketMatch)
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 
 	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.Profit)
+
 	if err == db.ErrUserDoesNotExist {
-		validation.WriteErrors(w, userDoesNotExist)
+		ea.Add(errUserDoesNotExist)
+		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
 

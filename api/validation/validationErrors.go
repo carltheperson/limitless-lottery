@@ -12,41 +12,54 @@ type ErrorMessage struct {
 	Message string
 }
 
-// WriteErrors writes the error messages to the writer
-func WriteErrors(w http.ResponseWriter, errors []ErrorMessage) {
-	w.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(w).Encode(errors)
+type ErrorAdder struct {
+	Errors *[]ErrorMessage
 }
 
-type errorAdder struct {
-	errors    *[]ErrorMessage
-	errorCase string
-	field     string
+func (ea ErrorAdder) Add(errorMessage ErrorMessage) {
+	*ea.Errors = append(*ea.Errors, errorMessage)
 }
 
-func (ea errorAdder) add(message string) {
-	*ea.errors = append(*ea.errors, ErrorMessage{Case: ea.errorCase, Field: ea.field, Message: message})
+func (ea ErrorAdder) Flush(w http.ResponseWriter, httpStatus int) {
+	w.WriteHeader(httpStatus)
+	errorResponse := struct {
+		Errors []ErrorMessage
+	}{
+		Errors: *ea.Errors,
+	}
+	json.NewEncoder(w).Encode(errorResponse)
 }
 
-func addError(field string, errorCase string, errors *[]ErrorMessage) {
-	ea := errorAdder{errors: errors, errorCase: errorCase, field: field}
+func NewErrorAdder() ErrorAdder {
+	return ErrorAdder{Errors: &[]ErrorMessage{}}
+}
+
+func createErrorMessage(field string, errorCase string) ErrorMessage {
+	msg := generateHumanMessage(field, errorCase)
+	return ErrorMessage{Case: errorCase, Field: field, Message: msg}
+}
+
+func generateHumanMessage(field string, errorCase string) string {
+	var msg string
 
 	switch errorCase {
 
 	case "required":
-		ea.add("The " + field + " is required")
+		msg = "The " + field + " is required"
 
 	case "numeric":
-		ea.add("The " + field + " is not numeric")
+		msg = "The " + field + " is not numeric"
 
 	case "min":
-		ea.add(field + " is too low")
+		msg = field + " is too low"
 
 	case "max":
-		ea.add(field + " is too high")
+		msg = field + " is too high"
 
 	default:
-		ea.add(field + " is invalid")
+		msg = field + " is invalid"
 
 	}
+
+	return msg
 }

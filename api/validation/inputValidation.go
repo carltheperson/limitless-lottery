@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"net/http"
 	"reflect"
 	"strings"
 
@@ -14,9 +13,8 @@ func init() {
 	v = validator.New()
 }
 
-func validateInput(input interface{}, w http.ResponseWriter) bool {
+func validateInput(input interface{}, ea *ErrorAdder) {
 	reflected := reflect.ValueOf(input)
-	errors := []ErrorMessage{}
 
 	err := v.Struct(input)
 	if err != nil {
@@ -33,11 +31,8 @@ func validateInput(input interface{}, w http.ResponseWriter) bool {
 				field = strings.ToLower(err.StructField())
 			}
 
-			addError(field, err.Tag(), &errors)
-
+			errorMessage := createErrorMessage(field, err.Tag())
+			ea.Add(errorMessage)
 		}
-		WriteErrors(w, errors)
-		return false
 	}
-	return true
 }

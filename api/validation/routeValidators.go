@@ -11,7 +11,7 @@ type CheckTicketAmountInput struct {
 	Username string `validate:"required"`
 }
 
-func CheckTicketAmount(w http.ResponseWriter, r *http.Request) (CheckTicketAmountInput, bool) {
+func CheckTicketAmount(r *http.Request, ea *ErrorAdder) (CheckTicketAmountInput, bool) {
 	amount, _ := strconv.Atoi(r.URL.Query().Get("amount"))
 
 	input := CheckTicketAmountInput{
@@ -20,8 +20,8 @@ func CheckTicketAmount(w http.ResponseWriter, r *http.Request) (CheckTicketAmoun
 		Username: r.URL.Query().Get("username"),
 	}
 
-	ok := validateInput(input, w)
-	if ok == false {
+	validateInput(input, ea)
+	if len(*ea.Errors) != 0 {
 		return CheckTicketAmountInput{}, false
 	}
 
@@ -33,14 +33,14 @@ type CheckTicketUntilWinInput struct {
 	Username string `validate:"required"`
 }
 
-func CheckTicketUntilWin(w http.ResponseWriter, r *http.Request) (CheckTicketUntilWinInput, bool) {
+func CheckTicketUntilWin(r *http.Request, ea *ErrorAdder) (CheckTicketUntilWinInput, bool) {
 	input := CheckTicketUntilWinInput{
 		ID:       r.URL.Query().Get("ticketid"),
 		Username: r.URL.Query().Get("username"),
 	}
 
-	ok := validateInput(input, w)
-	if ok == false {
+	validateInput(input, ea)
+	if len(*ea.Errors) != 0 {
 		return CheckTicketUntilWinInput{}, false
 	}
 	return input, true
