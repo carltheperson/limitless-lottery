@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/carlriis/Limitless-Lottery/api/validation"
 	"github.com/carlriis/Limitless-Lottery/db"
@@ -15,9 +16,20 @@ var (
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
+	amountInt, _ := strconv.Atoi(r.URL.Query().Get("amount"))
+	input := struct {
+		ID       string `validate:"required"`
+		Amount   int    `validate:"required,numeric,min=0,max=1000000000"`
+		Username string `validate:"required"`
+	}{
+		ID:       r.URL.Query().Get("ticketid"),
+		Amount:   amountInt,
+		Username: r.URL.Query().Get("username"),
+	}
+
 	ea := validation.NewErrorAdder()
-	input, ok := validation.CheckTicketAmount(r, &ea)
-	if ok != true {
+	validation.AddErrorsFromInput(input, &ea)
+	if ea.HasErrors != true {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
@@ -48,9 +60,17 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
+	input := struct {
+		ID       string `validate:"required"`
+		Username string `validate:"required"`
+	}{
+		ID:       r.URL.Query().Get("ticketid"),
+		Username: r.URL.Query().Get("username"),
+	}
+
 	ea := validation.NewErrorAdder()
-	input, ok := validation.CheckTicketUntilWin(r, &ea)
-	if ok != true {
+	validation.AddErrorsFromInput(input, &ea)
+	if ea.HasErrors != true {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}

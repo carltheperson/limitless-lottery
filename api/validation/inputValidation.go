@@ -13,7 +13,7 @@ func init() {
 	v = validator.New()
 }
 
-func validateInput(input interface{}, ea *ErrorAdder) {
+func AddErrorsFromInput(input interface{}, ea *ErrorAdder) {
 	reflected := reflect.ValueOf(input)
 
 	err := v.Struct(input)
