@@ -15,6 +15,8 @@ func Serve(addr string) {
 
 	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("GET")
 	r.HandleFunc("/checkticketuntilwin", checkTicketUntilWin).Methods("GET")
+	r.HandleFunc("/signin", signIn).Methods("POST")
+	r.HandleFunc("/signup", signUp).Methods("POST")
 
 	server := &http.Server{
 		Addr:         addr,

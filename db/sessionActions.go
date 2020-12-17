@@ -12,17 +12,19 @@ var (
 	ErrThereIsNoSessionIdentityForThatSessionToken = errors.New("There is no session identity for that session token")
 )
 
-func CreateNewSession(username string, sessionToken string) error {
+func CreateNewSession(username string, sessionToken string) (SessionIdentity, error) {
 	ctx, cancel := getContext()
 	defer cancel()
 
-	_, err := sessionIdentitiesCollection.InsertOne(ctx, SessionIdentity{
+	sessionIdentity := SessionIdentity{
 		Username:       username,
 		SessionToken:   sessionToken,
 		ExpirationDate: time.Now().AddDate(0, 0, daysTillExpiration).Unix(),
-	})
+	}
 
-	return err
+	_, err := sessionIdentitiesCollection.InsertOne(ctx, sessionIdentity)
+
+	return sessionIdentity, err
 }
 
 func RevokeSession(username string) error {

@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/carlriis/Limitless-Lottery/api/validation"
+	"github.com/carlriis/Limitless-Lottery/auth"
 	"github.com/carlriis/Limitless-Lottery/db"
 	"github.com/carlriis/Limitless-Lottery/tickets"
 )
@@ -98,4 +100,52 @@ func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
 		Ct:      ct,
 		Balance: updatedBalance,
 	})
+}
+
+func signIn(w http.ResponseWriter, r *http.Request) {
+	ea := validation.NewErrorAdder()
+
+	var input struct {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+	validation.UnmarshalJSONAndAddErrors(&input, r.Body, &ea)
+	if ea.HasErrors() {
+		ea.Flush(w, http.StatusBadRequest)
+		return
+	}
+
+	sessionIdentity, err := auth.SignIn(input.Username, input.Password)
+
+	if err != nil {
+		ea.Add(validation.ErrorMessage{Case: "login", Field: "Username||Password", Message: "Could not log you in"})
+		ea.Flush(w, http.StatusForbidden)
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   sessionIdentity.SessionToken,
+		Expires: time.Unix(sessionIdentity.ExpirationDate, 0),
+	})
+}
+
+func signUp(w http.ResponseWriter, r *http.Request) {
+	ea := validation.NewErrorAdder()
+
+	var input struct {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+	validation.UnmarshalJSONAndAddErrors(&input, r.Body, &ea)
+	if ea.HasErrors() {
+		ea.Flush(w, http.StatusBadRequest)
+		return
+	}
+
+	err := auth.SignUp(input.Username, input.Password)
+
+	if err != nil {
+		ea.Add(validation.ErrorMessage{Case: "sign up", Field: "", Message: "Could not sign you up"})
+		ea.Flush(w, http.StatusInternalServerError)
+	}
 }
