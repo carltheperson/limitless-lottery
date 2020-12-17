@@ -13,26 +13,32 @@ import (
 )
 
 var (
-	errNoTicketMatch    = validation.ErrorMessage{Case: "match", Field: "ID", Message: "There was no match for that ticket id"}
-	errUserDoesNotExist = validation.ErrorMessage{Case: "exist", Field: "Username", Message: "No user was found with that username"}
+	errNoTicketMatch        = validation.ErrorMessage{Case: "match", Field: "ID", Message: "There was no match for that ticket id"}
+	errUserDoesNotExist     = validation.ErrorMessage{Case: "exist", Field: "Username", Message: "No user was found with that username"}
+	errCouldNotAuthenticate = validation.ErrorMessage{Case: "auth", Field: "session_token", Message: "Could not authenticate you"}
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 	amountInt, _ := strconv.Atoi(r.URL.Query().Get("amount"))
 	input := struct {
-		ID       string `validate:"required"`
-		Amount   int    `validate:"required,numeric,min=0,max=1000000000"`
-		Username string `validate:"required"`
+		ID     string `validate:"required"`
+		Amount int    `validate:"required,numeric,min=0,max=1000000000"`
 	}{
-		ID:       r.URL.Query().Get("ticketid"),
-		Amount:   amountInt,
-		Username: r.URL.Query().Get("username"),
+		ID:     r.URL.Query().Get("ticketid"),
+		Amount: amountInt,
 	}
 
 	ea := validation.NewErrorAdder()
 	validation.AddErrorsFromInput(input, &ea)
 	if ea.HasErrors() == true {
 		ea.Flush(w, http.StatusBadRequest)
+		return
+	}
+
+	username, err := auth.Authenticate(r)
+	if err != nil {
+		ea.Add(errCouldNotAuthenticate)
+		ea.Flush(w, http.StatusForbidden)
 		return
 	}
 
@@ -44,7 +50,7 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.AmountWonTotal-ct.AmountDeducted)
+	updatedBalance, err := db.ChangeUserBalance(username, ct.AmountWonTotal-ct.AmountDeducted)
 
 	if err == db.ErrUserDoesNotExist {
 		ea.Add(errUserDoesNotExist)
@@ -63,17 +69,22 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
 	input := struct {
-		ID       string `validate:"required"`
-		Username string `validate:"required"`
+		ID string `validate:"required"`
 	}{
-		ID:       r.URL.Query().Get("ticketid"),
-		Username: r.URL.Query().Get("username"),
+		ID: r.URL.Query().Get("ticketid"),
 	}
 
 	ea := validation.NewErrorAdder()
 	validation.AddErrorsFromInput(input, &ea)
 	if ea.HasErrors() == true {
 		ea.Flush(w, http.StatusBadRequest)
+		return
+	}
+
+	username, err := auth.Authenticate(r)
+	if err != nil {
+		ea.Add(errCouldNotAuthenticate)
+		ea.Flush(w, http.StatusForbidden)
 		return
 	}
 
@@ -85,7 +96,7 @@ func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedBalance, err := db.ChangeUserBalance(input.Username, ct.Profit)
+	updatedBalance, err := db.ChangeUserBalance(username, ct.Profit)
 
 	if err == db.ErrUserDoesNotExist {
 		ea.Add(errUserDoesNotExist)
