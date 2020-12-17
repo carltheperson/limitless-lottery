@@ -1,6 +1,9 @@
 package validation
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"reflect"
 	"strings"
 
@@ -14,7 +17,12 @@ func init() {
 }
 
 func AddErrorsFromInput(input interface{}, ea *ErrorAdder) {
-	reflected := reflect.ValueOf(input)
+	var reflected reflect.Value
+	if reflect.ValueOf(input).Kind() == reflect.Ptr {
+		reflected = reflect.ValueOf(input).Elem()
+	} else {
+		reflected = reflect.ValueOf(input)
+	}
 
 	err := v.Struct(input)
 	if err != nil {
@@ -35,4 +43,21 @@ func AddErrorsFromInput(input interface{}, ea *ErrorAdder) {
 			ea.Add(errorMessage)
 		}
 	}
+}
+
+func UnmarshalJSONAndAddErrors(input interface{}, body io.ReadCloser, ea *ErrorAdder) {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(body)
+	jsonString := buf.String()
+
+	err := json.Unmarshal([]byte(jsonString), &input)
+	if _, ok := err.(*json.SyntaxError); ok {
+		ea.Add(ErrorMessage{Case: "syntaxError", Field: "JSON", Message: "SyntaxError parsing JSON"})
+		return
+	} else if err != nil {
+		ea.Add(ErrorMessage{Case: "unexpectedError", Field: "JSON", Message: "The server had an unexpected error while trying to parse JSON"})
+		return
+	}
+
+	AddErrorsFromInput(input, ea)
 }

@@ -29,7 +29,7 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 
 	ea := validation.NewErrorAdder()
 	validation.AddErrorsFromInput(input, &ea)
-	if ea.HasErrors != true {
+	if ea.HasErrors() == true {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
@@ -70,7 +70,7 @@ func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
 
 	ea := validation.NewErrorAdder()
 	validation.AddErrorsFromInput(input, &ea)
-	if ea.HasErrors != true {
+	if ea.HasErrors() == true {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}

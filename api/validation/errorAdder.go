@@ -6,16 +6,14 @@ import (
 )
 
 type ErrorAdder struct {
-	Errors    *[]ErrorMessage
-	HasErrors bool
+	Errors *[]ErrorMessage
 }
 
 func NewErrorAdder() ErrorAdder {
-	return ErrorAdder{Errors: &[]ErrorMessage{}, HasErrors: false}
+	return ErrorAdder{Errors: &[]ErrorMessage{}}
 }
 
 func (ea ErrorAdder) Add(errorMessage ErrorMessage) {
-	ea.HasErrors = true
 	*ea.Errors = append(*ea.Errors, errorMessage)
 }
 
@@ -29,6 +27,6 @@ func (ea ErrorAdder) Flush(w http.ResponseWriter, httpStatus int) {
 	json.NewEncoder(w).Encode(errorResponse)
 }
 
-// func (ea ErrorAdder) HasErrors() bool {
-// 	return len(*ea.Errors) == 0
-// }
+func (ea ErrorAdder) HasErrors() bool {
+	return len(*ea.Errors) != 0
+}
