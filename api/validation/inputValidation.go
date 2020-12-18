@@ -16,6 +16,7 @@ func init() {
 	v = validator.New()
 }
 
+// AddErrorsFromInput takes an input struct and adds validation errores using the ErrorAdder
 func AddErrorsFromInput(input interface{}, ea *ErrorAdder) {
 	var reflected reflect.Value
 	if reflect.ValueOf(input).Kind() == reflect.Ptr {
@@ -45,6 +46,7 @@ func AddErrorsFromInput(input interface{}, ea *ErrorAdder) {
 	}
 }
 
+// UnmarshalJSONAndAddErrors turns the JSON into a struct and adds relevant validation errors, including syntax errors
 func UnmarshalJSONAndAddErrors(input interface{}, body io.ReadCloser, ea *ErrorAdder) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(body)

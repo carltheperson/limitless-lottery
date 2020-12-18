@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// SignUp stores a user in the db with the password in hashed form
 func SignUp(username string, password string) error {
 	passwordHash := GenerateHashedPassword(password)
 

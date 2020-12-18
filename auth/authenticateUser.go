@@ -13,6 +13,7 @@ var (
 	ErrInvalidSessionToken    = errors.New("Session token is invalid")
 )
 
+// Authenticate checks if the session token belongs to a user
 func Authenticate(r *http.Request) (string, error) {
 	cookie, err := r.Cookie("session_token")
 
@@ -28,7 +29,7 @@ func Authenticate(r *http.Request) (string, error) {
 	}
 
 	if time.Now().Unix() > sessionIdentity.ExpirationDate {
-		db.RevokeSession(sessionIdentity.Username)
+		db.RevokeSession(sessionIdentity.SessionToken)
 		return "", ErrInvalidSessionToken
 	}
 

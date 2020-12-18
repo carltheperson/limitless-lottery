@@ -9,6 +9,7 @@ import (
 
 var ErrLoginAttemptUnsuccessful = errors.New("Login attempt unsuccessful")
 
+// SignIn creates a SessionIdentity in the db if the password is correct for the username
 func SignIn(username string, password string) (db.SessionIdentity, error) {
 	user, err := db.GetUser(username)
 

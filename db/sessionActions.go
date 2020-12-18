@@ -27,11 +27,12 @@ func CreateNewSession(username string, sessionToken string) (SessionIdentity, er
 	return sessionIdentity, err
 }
 
-func RevokeSession(username string) error {
+// RevokeSession removes the SessionIdentity  (in the db) that contains the provided session token
+func RevokeSession(sessionToken string) error {
 	ctx, cancel := getContext()
 	defer cancel()
 
-	_, err := sessionIdentitiesCollection.DeleteOne(ctx, SessionIdentity{Username: username})
+	_, err := sessionIdentitiesCollection.DeleteOne(ctx, SessionIdentity{SessionToken: sessionToken})
 
 	return err
 }

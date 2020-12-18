@@ -8,6 +8,7 @@ import (
 
 const tokenLength = 30
 
+// GenerateSessionToken creates a random session token
 func GenerateSessionToken() string {
 	rand.Seed(time.Now().UTC().UnixNano())
 	b := generateRandomBytes(tokenLength)
