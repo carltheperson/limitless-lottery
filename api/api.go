@@ -8,13 +8,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Serve starts API
+// Serve starts the API
 func Serve(addr string) {
 	r := mux.NewRouter().PathPrefix("/api").Subrouter()
 	r.Use(jsonMiddleware)
 
-	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("GET")
-	r.HandleFunc("/checkticketuntilwin", checkTicketUntilWin).Methods("GET")
+	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("PUT")
+	r.HandleFunc("/checkticketuntilwin", checkTicketUntilWin).Methods("PUT")
 	r.HandleFunc("/signin", signIn).Methods("POST")
 	r.HandleFunc("/signup", signUp).Methods("POST")
 

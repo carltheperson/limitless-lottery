@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/carlriis/Limitless-Lottery/api/validation"
@@ -19,18 +18,15 @@ var (
 )
 
 func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
-	amountInt, _ := strconv.Atoi(r.URL.Query().Get("amount"))
-	input := struct {
-		ID     string `validate:"required"`
-		Amount int    `validate:"required,numeric,min=0,max=1000000000"`
-	}{
-		ID:     r.URL.Query().Get("ticketid"),
-		Amount: amountInt,
+	ea := validation.NewErrorAdder()
+
+	var input struct {
+		ID     string `json:"ticketid" validate:"required"`
+		Amount int    `json:"amount" validate:"required,numeric,min=0,max=1000000000"`
 	}
 
-	ea := validation.NewErrorAdder()
-	validation.AddErrorsFromInput(input, &ea)
-	if ea.HasErrors() == true {
+	validation.UnmarshalJSONAndAddErrors(&input, r.Body, &ea)
+	if ea.HasErrors() {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
@@ -68,15 +64,14 @@ func checkTicketAmount(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkTicketUntilWin(w http.ResponseWriter, r *http.Request) {
-	input := struct {
-		ID string `validate:"required"`
-	}{
-		ID: r.URL.Query().Get("ticketid"),
+	ea := validation.NewErrorAdder()
+
+	var input struct {
+		ID string `json:"ticketid" validate:"required"`
 	}
 
-	ea := validation.NewErrorAdder()
-	validation.AddErrorsFromInput(input, &ea)
-	if ea.HasErrors() == true {
+	validation.UnmarshalJSONAndAddErrors(&input, r.Body, &ea)
+	if ea.HasErrors() {
 		ea.Flush(w, http.StatusBadRequest)
 		return
 	}
@@ -134,9 +129,10 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
-		Value:   sessionIdentity.SessionToken,
-		Expires: time.Unix(sessionIdentity.ExpirationDate, 0),
+		Name:     "session_token",
+		Value:    sessionIdentity.SessionToken,
+		Expires:  time.Unix(sessionIdentity.ExpirationDate, 0),
+		HttpOnly: true,
 	})
 }
 

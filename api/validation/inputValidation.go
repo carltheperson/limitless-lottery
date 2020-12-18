@@ -54,6 +54,9 @@ func UnmarshalJSONAndAddErrors(input interface{}, body io.ReadCloser, ea *ErrorA
 	if _, ok := err.(*json.SyntaxError); ok {
 		ea.Add(ErrorMessage{Case: "syntaxError", Field: "JSON", Message: "SyntaxError parsing JSON"})
 		return
+	} else if v, ok := err.(*json.UnmarshalTypeError); ok {
+		ea.Add(ErrorMessage{Case: "JSONTypeError", Field: v.Field, Message: "Field " + v.Field + " cannot be " + v.Value})
+		return
 	} else if err != nil {
 		ea.Add(ErrorMessage{Case: "unexpectedError", Field: "JSON", Message: "The server had an unexpected error while trying to parse JSON"})
 		return
