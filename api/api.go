@@ -4,13 +4,23 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/carlriis/Limitless-Lottery/config"
+	"github.com/carlriis/Limitless-Lottery/ui"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
 // Serve starts the API
 func Serve(addr string) {
-	r := mux.NewRouter().PathPrefix("/api").Subrouter()
+	rServe := mux.NewRouter()
+
+	if config.Get("SERVE_STATIC") == "TRUE" {
+		fn := ui.GetStaticHandler()
+		rServe.Handle("/", fn)
+	}
+
+	r := rServe.PathPrefix("/api").Subrouter()
+
 	r.Use(jsonMiddleware)
 
 	r.HandleFunc("/checkticketamount", checkTicketAmount).Methods("PUT")
@@ -20,7 +30,7 @@ func Serve(addr string) {
 
 	server := &http.Server{
 		Addr:         addr,
-		Handler:      r,
+		Handler:      rServe,
 		ReadTimeout:  time.Second * 30,
 		WriteTimeout: time.Second * 30,
 	}

@@ -1,4 +1,4 @@
-FROM golang:latest as builder
+FROM golang:latest as goBuilder
 
 WORKDIR /app
 
@@ -10,13 +10,35 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o .
 
+
+
+FROM node:latest as nodeBuilder
+
+WORKDIR /app
+
+COPY ui/web/package.json ui/web/package-lock.json ./
+
+RUN npm install
+
+COPY ./ui/web .
+
+RUN npm run export_simple
+
+
+
 FROM alpine:latest 
+
+ENV SERVE_DIR=/root/out
+
+ENV SERVE_STATIC=TRUE
 
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /app/Limitless-Lottery .
+COPY --from=goBuilder /app/Limitless-Lottery .
+
+COPY --from=nodeBuilder /app/out ./out
 
 EXPOSE 8080
 

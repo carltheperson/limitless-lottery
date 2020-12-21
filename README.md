@@ -14,7 +14,7 @@ docker-compose -f docker-compose.db.yaml up
 
 ## Running in production
 
-This will build the app to a small Alpine Docker image, and bring up a MongoDB database which communicates with the app.
+This will build the app and UI to a small Alpine Docker image, and bring up a MongoDB database which communicates with the app.
 
 ```
 docker-compose -f docker-compose.db.yaml -f docker-compose.yaml up
@@ -22,7 +22,7 @@ docker-compose -f docker-compose.db.yaml -f docker-compose.yaml up
 
 # Probability calculations
 
-<!-- Equations from: https://www.codecogs.com/latex/eqneditor.php -->
+<!-- Equations created at: https://www.codecogs.com/latex/eqneditor.php -->
 
 ## Buying *x* amount of tickets
 

@@ -4,3 +4,5 @@ services:
     build: .
     environment:
       - MONGO_URL=mongodb://db:27017
+    ports:
+      - 80:8080

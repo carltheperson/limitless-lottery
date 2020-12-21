@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next build && next export && mv out ../webout",
+    "export_simple": "next build && next export",
     "start": "next start"
   },
   "dependencies": {
