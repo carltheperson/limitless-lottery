@@ -7,16 +7,16 @@ export default function NoAuthHeader() {
       <p className="logo-text">Limitless Lottery</p>
 
       <div className="links">
-        <Link href="">
+        <Link href="#">
           <a>About</a>
         </Link>
-        <Link href="">
+        <Link href="#">
           <a>Privacy</a>
         </Link>
-        <Link href="">
+        <Link href="#">
           <a>Login</a>
         </Link>
-        <Link href="">
+        <Link href="#">
           <a>Sign up</a>
         </Link>
       </div>
