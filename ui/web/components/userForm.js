@@ -1,6 +1,10 @@
 import Button from "./button"
+import { useState } from "react"
 
 export default function UserForm(props) {
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+
 
   return (
     <div className="center-div">
@@ -8,17 +12,17 @@ export default function UserForm(props) {
 
         <p>Username</p>
         <br />
-        <input />
+        <input value={username} onChange={(e) => setUsername(e.target.value) || ""} />
 
         <br />
 
         <p>Password</p>
         <br />
-        <input type="password" className="password" />
+        <input value={password} onChange={(e) => setPassword(e.target.value) || ""} type="password" className="password" />
 
         <br />
         <div className="btn">
-          <Button>{props.buttonText}</Button>
+          <Button onClick={() => props.onSubmit({ username: username, password: password })}>{props.buttonText}</Button>
         </div>
 
 

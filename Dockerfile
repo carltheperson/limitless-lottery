@@ -22,6 +22,9 @@ RUN npm install
 
 COPY ./ui/web .
 
+# This will have the api point to itself
+ENV NEXT_PUBLIC_API_URL=
+
 RUN npm run export_simple
 
 
@@ -31,6 +34,8 @@ FROM alpine:latest
 ENV SERVE_DIR=/root/out
 
 ENV SERVE_STATIC=TRUE
+
+ENV ALLOW_ORIGIN_URL=http://localhost:8080
 
 RUN apk --no-cache add ca-certificates
 

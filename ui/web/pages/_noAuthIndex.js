@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import Button from "../components/button"
+import Router from 'next/router'
 
 
 export default function NoAuthIndex() {
@@ -14,14 +14,14 @@ export default function NoAuthIndex() {
           Will you make more than you spend?
         </p>
         <div className="btn">
-          <Button onClick={() => { }}>Sign Up</Button>
+          <Button onClick={() => { Router.push("/sign-up") }}>Sign Up</Button>
         </div>
 
 
       </div>
 
       <div className="img-container">
-        <Image src="/images/tickets.png" alt="tickets" width="340px" height="630px" />
+        <img className="img" src="/images/tickets.png" alt="tickets" width="340px" height="630px" />
       </div>
 
       <style jsx> {
@@ -46,8 +46,9 @@ export default function NoAuthIndex() {
           padding: 10% 8% 0 8%;
         }
 
-        img {
+        .img {
           display: block !important;
+          float: right;
         }
 
         .img-container {

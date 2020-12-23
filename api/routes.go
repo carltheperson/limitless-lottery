@@ -126,14 +126,17 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ea.Add(validation.ErrorMessage{Case: "login", Field: "Username||Password", Message: "Could not log you in"})
 		ea.Flush(w, http.StatusForbidden)
+		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	cookie := &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionIdentity.SessionToken,
 		Expires:  time.Unix(sessionIdentity.ExpirationDate, 0),
-		HttpOnly: true,
-	})
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
 }
 
 func signUp(w http.ResponseWriter, r *http.Request) {
@@ -149,10 +152,45 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	taken := db.CheckIfUsernameTaken(input.Username)
+	if taken {
+		ea.Add(validation.ErrorMessage{Case: "taken", Field: "username", Message: "The username '" + input.Username + "' is taken"})
+		ea.Flush(w, http.StatusBadRequest)
+		return
+	}
+
 	err := auth.SignUp(input.Username, input.Password)
 
 	if err != nil {
 		ea.Add(validation.ErrorMessage{Case: "sign up", Field: "", Message: "Could not sign you up"})
 		ea.Flush(w, http.StatusInternalServerError)
 	}
+
+	// Creating session
+	sessionIdentity, err := auth.SignIn(input.Username, input.Password)
+
+	if err != nil {
+		ea.Add(validation.ErrorMessage{Case: "login", Field: "Username||Password", Message: "Could not log you in"})
+		ea.Flush(w, http.StatusForbidden)
+	}
+
+	cookie := &http.Cookie{
+		Name:     "session_token",
+		Value:    sessionIdentity.SessionToken,
+		Expires:  time.Unix(sessionIdentity.ExpirationDate, 0),
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
+}
+
+func retreiveUsername(w http.ResponseWriter, r *http.Request) {
+	ea := validation.NewErrorAdder()
+	username, err := auth.Authenticate(r)
+	if err != nil {
+		ea.Add(errCouldNotAuthenticate)
+		ea.Flush(w, http.StatusForbidden)
+		return
+	}
+	w.Write([]byte(username))
 }

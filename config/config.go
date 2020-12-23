@@ -22,7 +22,8 @@ func Get(envName string) string {
 }
 
 var defaults map[string]string = map[string]string{
-	"MONGO_URL":    "mongodb://localhost:27017",
-	"SERVE_STATIC": "FALSE",
-	"SERVE_DIR":    "./ui/webout",
+	"MONGO_URL":        "mongodb://localhost:27017",
+	"SERVE_STATIC":     "FALSE",
+	"SERVE_DIR":        "./ui/webout",
+	"ALLOW_ORIGIN_URL": "http://localhost:3000",
 }
