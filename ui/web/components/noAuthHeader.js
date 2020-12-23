@@ -4,19 +4,21 @@ export default function NoAuthHeader() {
 
   return (
     <div className="container">
-      <p className="logo-text">Limitless Lottery</p>
+      <Link href="/">
+        <p className="logo-text">Limitless Lottery</p>
+      </Link>
 
       <div className="links">
-        <Link href="#">
+        <Link href="/about">
           <a>About</a>
         </Link>
-        <Link href="#">
+        <Link href="/privacy">
           <a>Privacy</a>
         </Link>
-        <Link href="#">
+        <Link href="/login">
           <a>Login</a>
         </Link>
-        <Link href="#">
+        <Link href="/sign-up">
           <a>Sign up</a>
         </Link>
       </div>
@@ -39,6 +41,7 @@ export default function NoAuthHeader() {
           font-weight: bold;
           font-size: 5em;
           margin: 0;
+          cursor: pointer;
         }
 
         .links {

@@ -11,7 +11,7 @@ export default function Button(props) {
             radius: 5px;
             font-size: 4em;
             color: #FFF970;
-            padding: 0.4em;
+            padding: 0.25em 0.4em;
             font-weight: bold;
             text-align: center;
             border-radius: 0.5em;
@@ -20,8 +20,8 @@ export default function Button(props) {
           }
 
           button:hover {
-            -webkit-box-shadow: 5px 7px 23px 1px #000000; 
-            box-shadow: 5px 7px 23px 1px #000000;
+            -webkit-box-shadow: 5px 6px 13px -1px rgba(0,0,0,0.8); 
+            box-shadow: 5px 6px 13px -1px rgba(0,0,0,0.8);  
           }
       `
       }
