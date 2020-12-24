@@ -25,6 +25,7 @@ func Serve(addr string) {
 
 	r.Use(jsonMiddleware)
 	r.Use(corsMiddleware)
+	r.Use(loggingMiddleware)
 
 	r.Methods("OPTIONS").HandlerFunc(corsOptions)
 
@@ -33,6 +34,8 @@ func Serve(addr string) {
 	r.HandleFunc("/signin", signIn).Methods("POST")
 	r.HandleFunc("/signup", signUp).Methods("POST")
 	r.HandleFunc("/session-username", retreiveUsername).Methods("GET")
+	r.HandleFunc("/session", deleteSession).Methods("DELETE")
+	r.HandleFunc("/balance", retrieveBalance).Methods("GET")
 
 	server := &http.Server{
 		Addr:         addr,
@@ -56,17 +59,24 @@ func jsonMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Info(r.URL.Path + " " + r.Method)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", config.Get("ALLOW_ORIGIN_URL"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Request-Method", "*")
+		w.Header().Set("Access-Control-Request-Methods", "*")
 		next.ServeHTTP(w, r)
 	})
 }
 
 func corsOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", config.Get("ALLOW_ORIGIN_URL"))
-	w.Header().Set("Access-Control-Request-Method", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,OPTIONS,POST,PUT,DELETE,*")
 	w.Header().Set("Access-Control-Allow-Headers", "content-type")
 }

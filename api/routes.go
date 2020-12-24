@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/carlriis/Limitless-Lottery/api/validation"
@@ -193,4 +194,27 @@ func retreiveUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(username))
+}
+
+func retrieveBalance(w http.ResponseWriter, r *http.Request) {
+	username, err := auth.Authenticate(r)
+	if err != nil {
+		return
+	}
+	user, _ := db.GetUser(username)
+
+	w.Write([]byte(strconv.Itoa(user.Balance)))
+}
+
+func deleteSession(w http.ResponseWriter, r *http.Request) {
+	auth.LogOut(r)
+
+	cookie := &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
 }

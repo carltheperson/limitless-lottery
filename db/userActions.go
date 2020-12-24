@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const initialBalance = 10000
+const initialBalance = 1000
 
 var ErrUsernameTaken = errors.New("Username taken")
 var ErrUserDoesNotExist = errors.New("User does not exist")

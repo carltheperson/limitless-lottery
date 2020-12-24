@@ -1,31 +1,34 @@
 import Button from "../components/button"
 import Router from 'next/router'
+import NoAuthHeader from "../components/noAuthHeader"
 
 
 export default function NoAuthIndex() {
 
   return (
-    <div className="container">
-      <div className="text">
-        <p className="thin">
-          A simulation of being able to buy as many lottery tickets as you want.
+    <div>
+      <NoAuthHeader />
+      <div className="container">
+        <div className="text">
+          <p className="thin">
+            A simulation of being able to buy as many lottery tickets as you want.
       </p>
-        <p>
-          Will you make more than you spend?
+          <p>
+            Will you make more than you spend?
         </p>
-        <div className="btn">
-          <Button onClick={() => { Router.push("/sign-up") }}>Sign Up</Button>
+          <div className="btn">
+            <Button onClick={() => { Router.push("/sign-up") }}>Sign Up</Button>
+          </div>
+
+
         </div>
 
+        <div className="img-container">
+          <img className="img" src="/images/tickets.png" alt="tickets" width="340px" height="630px" />
+        </div>
 
-      </div>
-
-      <div className="img-container">
-        <img className="img" src="/images/tickets.png" alt="tickets" width="340px" height="630px" />
-      </div>
-
-      <style jsx> {
-        `
+        <style jsx> {
+          `
         p {
           text-align: center;
           font-size: 4em;
@@ -63,8 +66,10 @@ export default function NoAuthIndex() {
           padding-top: 3em;
         }
       `
-      }
-      </style>
+        }
+        </style>
+      </div>
+
     </div>
   )
 }

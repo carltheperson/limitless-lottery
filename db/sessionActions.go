@@ -37,20 +37,6 @@ func RevokeSession(sessionToken string) error {
 	return err
 }
 
-func RetrieveSessionToken(username string) (string, error) {
-	ctx, cancel := getContext()
-	defer cancel()
-
-	var result SessionIdentity
-	sessionIdentitiesCollection.FindOne(ctx, SessionIdentity{Username: username}).Decode(&result)
-
-	if result.SessionToken == "" {
-		return "", ErrThereIsNoSessionTokenForThatUser
-	}
-
-	return result.SessionToken, nil
-}
-
 func FindSessionIdentityFromSessionToken(sessionToken string) (SessionIdentity, error) {
 	ctx, cancel := getContext()
 	defer cancel()
