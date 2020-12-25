@@ -2,6 +2,8 @@
 
 A simulation game where you are allowed to spend an infinite amount of money on different kinds of lottery tickets. Will you make more than you spend?
 
+![](screenshot.png)
+
 # Running
 
 ## Running in development
