@@ -206,6 +206,14 @@ func retrieveBalance(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(strconv.Itoa(user.Balance)))
 }
 
+func retrieveOdds(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(struct {
+		Odds []string
+	}{
+		Odds: tickets.ExportOdds(),
+	})
+}
+
 func deleteSession(w http.ResponseWriter, r *http.Request) {
 	auth.LogOut(r)
 

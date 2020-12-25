@@ -19,7 +19,6 @@ export default function Button(props) {
             box-shadow: 5px 6px 13px -1px rgba(0,0,0,0.53);   
             cursor: pointer;
           }
-
           button:hover {
             -webkit-box-shadow: 5px 6px 13px -1px rgba(0,0,0,0.8); 
             box-shadow: 5px 6px 13px -1px rgba(0,0,0,0.8);  

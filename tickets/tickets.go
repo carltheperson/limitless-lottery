@@ -1,9 +1,40 @@
 package tickets
 
-import "errors"
+import (
+	"errors"
+	"sort"
+	"strconv"
+)
 
 // ErrIDWithNoMatch is thrown when the tickitid does not match any tickets
 var ErrIDWithNoMatch = errors.New("ID did not match any tickets")
+
+// ExportOdds returns a human readable version of the ticket odds
+func ExportOdds() []string {
+
+	var odds []string
+	for _, ticket := range tickets {
+
+		keys := make([]int, len(ticket.odds))
+		i := 0
+		for k := range ticket.odds {
+			keys[i] = k
+			i++
+		}
+		sort.Ints(keys)
+
+		oddsString := ""
+		for _, k := range keys {
+
+			oddsString += "1 / " + strconv.Itoa(k) + " = " + strconv.Itoa(ticket.odds[k]) + "$ \n"
+		}
+
+		odds = append(odds, oddsString)
+	}
+
+	return odds
+
+}
 
 func findCheckedTicketFromID(id string) (Ticket, error) {
 	for _, ticket := range tickets {

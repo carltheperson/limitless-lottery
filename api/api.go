@@ -36,6 +36,7 @@ func Serve(addr string) {
 	r.HandleFunc("/session-username", retreiveUsername).Methods("GET")
 	r.HandleFunc("/session", deleteSession).Methods("DELETE")
 	r.HandleFunc("/balance", retrieveBalance).Methods("GET")
+	r.HandleFunc("/ticket-odds", retrieveOdds).Methods("GET")
 
 	server := &http.Server{
 		Addr:         addr,
