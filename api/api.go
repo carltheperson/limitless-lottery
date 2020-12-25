@@ -16,11 +16,6 @@ func Serve(addr string) {
 
 	rServe.Use(corsMiddleware)
 
-	if config.Get("SERVE_STATIC") == "TRUE" {
-		fn := ui.GetStaticHandler()
-		rServe.PathPrefix("/").Handler(http.StripPrefix("/", fn))
-	}
-
 	r := rServe.PathPrefix("/api").Subrouter()
 
 	r.Use(jsonMiddleware)
@@ -37,6 +32,11 @@ func Serve(addr string) {
 	r.HandleFunc("/session", deleteSession).Methods("DELETE")
 	r.HandleFunc("/balance", retrieveBalance).Methods("GET")
 	r.HandleFunc("/ticket-odds", retrieveOdds).Methods("GET")
+
+	if config.Get("SERVE_STATIC") == "TRUE" {
+		fn := ui.GetStaticHandler()
+		rServe.PathPrefix("/").Handler(http.StripPrefix("/", fn))
+	}
 
 	server := &http.Server{
 		Addr:         addr,

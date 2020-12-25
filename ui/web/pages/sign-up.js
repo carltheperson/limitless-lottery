@@ -16,6 +16,7 @@ export default function Home() {
       Router.push("/")
       setLoggedIn(true)
     }).catch((err) => {
+      console.log(err)
       setErrorText(err.response.data.Errors[0].Message)
     })
   }

@@ -27,7 +27,11 @@ export default function AuthHeader(props) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 2em;
+        padding: 0 20px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
       }
 
       .logo-text {

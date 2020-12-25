@@ -135,7 +135,6 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionIdentity.SessionToken,
 		Expires:  time.Unix(sessionIdentity.ExpirationDate, 0),
 		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
 	}
 	http.SetCookie(w, cookie)
 }
@@ -180,7 +179,6 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionIdentity.SessionToken,
 		Expires:  time.Unix(sessionIdentity.ExpirationDate, 0),
 		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
 	}
 	http.SetCookie(w, cookie)
 }
@@ -222,7 +220,6 @@ func deleteSession(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Expires:  time.Unix(0, 0),
 		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
 	}
 	http.SetCookie(w, cookie)
 }

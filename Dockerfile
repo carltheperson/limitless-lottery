@@ -35,7 +35,7 @@ ENV SERVE_DIR=/root/out
 
 ENV SERVE_STATIC=TRUE
 
-ENV ALLOW_ORIGIN_URL=http://localhost:8080
+ENV ALLOW_ORIGIN_URL=http://10.0.0.18
 
 RUN apk --no-cache add ca-certificates
 
